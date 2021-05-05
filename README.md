@@ -7,6 +7,7 @@ Server:
     - Possibly handle image compression as an option?
     - Use SQL to storage meta data
     - Have Cache to avoid fetching from SQL (use Redis?)
+    - Have users table to protect access to images
 Client:
     Script:
     - Client script to send POST request with body as the image to server
