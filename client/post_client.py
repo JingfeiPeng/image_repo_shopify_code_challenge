@@ -8,15 +8,19 @@ import os
 from utils import URL
 import click
 
+# Since the requests are async, set a bound of 30 on the maxnium number of requests that
+# can be made at once. Feel free to lower the bound and have sleep method on server's api 
+# to test effectiveness
+MAX_REQUESTS_AT_ONCE = 30
 
-
-async def post_file(session, image_path):
+async def post_file(session, sema, image_path):
     with open(image_path, "rb") as f:
-        async with session.post(f"{URL}/image", data={ "file": f }) as r:
+        async with sema, session.post(f"{URL}/image", data={ "file": f }) as r:
             return await r.json()
 
 
 async def main(directories, files) -> None:
+    sema = asyncio.BoundedSemaphore(value=MAX_REQUESTS_AT_ONCE)
     async with aiohttp.ClientSession() as session:
         tasks = []
         if directories:
@@ -27,14 +31,14 @@ async def main(directories, files) -> None:
                 for f in listdir(path):
                     file_path = join(path, f)
                     if isfile(file_path):
-                        tasks.append(post_file(session, file_path))
+                        tasks.append(post_file(session, sema, file_path))
         if files:
             for path in files:
                 # each input arg is a list by default
                 path = path[0]
                 if isfile(path):
                     # sends a single file
-                    tasks.append(post_file(session, path))
+                    tasks.append(post_file(session, sema, path))
                 else:
                     print(f"Error: {path} or {relative_path} is not a valid file path")
         results = await asyncio.gather(*tasks)
