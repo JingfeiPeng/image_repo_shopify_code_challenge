@@ -5,8 +5,7 @@ import asyncio
 import argparse
 import requests
 import os
-
-URL = "http://127.0.0.1:8081"
+from utils import URL
 
 
 async def post_file(image_path):
@@ -33,9 +32,11 @@ async def main(path, is_file=False) -> None:
         elif isfile(path):
             # sends a single file
             tasks.append(post_file(path))
-        elif isfile(join(os.path.dirname(os.path.realpath(__file__)),path)):
+        elif isfile(join(os.path.dirname(os.path.realpath(__file__)), path)):
             # allow relative path for a single file
-            tasks.append(post_file(join(os.path.dirname(os.path.realpath(__file__)),path)))
+            tasks.append(
+                post_file(join(os.path.dirname(os.path.realpath(__file__)), path))
+            )
         else:
             print(f"ERROR: {path} is not a valid file path")
         results = await asyncio.gather(*tasks)
@@ -44,7 +45,7 @@ async def main(path, is_file=False) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog="image repo client",
+        prog="image repo client for uploading files",
         description="a script to upload images based on a path, can upload individual files or every file in a folder",
     )
     parser.add_argument(
@@ -56,7 +57,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--is_file",
         help="whether the fed in path is pointing to a file, by default assumes the path points to a folder",
-        default=False, action="store_true"
+        default=False,
+        action="store_true",
     )
     args = parser.parse_args()
     asyncio.run(main(args.path, args.is_file))

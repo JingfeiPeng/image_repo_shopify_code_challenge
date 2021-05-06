@@ -1,2 +1,4 @@
 .venv
 server/storage/*
+client/__pycache__
+server/__pycache__

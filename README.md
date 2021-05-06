@@ -19,3 +19,9 @@ Client:
     - Dropbox to upload image
     - display avaliable images
     - search avaliable images and delete based on keyword, allow filtering out wanted images
+
+Database:
+    - Uses a SQL table for storing image meta_data
+    Image:
+     path: str
+     description: str
