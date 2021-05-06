@@ -6,6 +6,8 @@ import argparse
 import requests
 import os
 from utils import URL
+import click
+
 
 
 async def post_file(image_path):
@@ -20,25 +22,27 @@ async def post_file(image_path):
     return data
 
 
-async def main(path, is_file=False) -> None:
+async def main(directories, files) -> None:
     async with aiohttp.ClientSession() as session:
         tasks = []
-        if not is_file:
-            # sends all files at path directory
-            for f in listdir(path):
-                file_path = join(path, f)
-                if isfile(file_path):
-                    tasks.append(post_file(file_path))
-        elif isfile(path):
-            # sends a single file
-            tasks.append(post_file(path))
-        elif isfile(join(os.path.dirname(os.path.realpath(__file__)), path)):
-            # allow relative path for a single file
-            tasks.append(
-                post_file(join(os.path.dirname(os.path.realpath(__file__)), path))
-            )
-        else:
-            print(f"ERROR: {path} is not a valid file path")
+        if directories:
+            for path in directories:
+                # each input arg is a list by default
+                path = path[0]
+                # sends all files at path directory
+                for f in listdir(path):
+                    file_path = join(path, f)
+                    if isfile(file_path):
+                        tasks.append(post_file(file_path))
+        if files:
+            for path in files:
+                # each input arg is a list by default
+                path = path[0]
+                if isfile(path):
+                    # sends a single file
+                    tasks.append(post_file(path))
+                else:
+                    print(f"Error: {path} or {relative_path} is not a valid file path")
         results = await asyncio.gather(*tasks)
         print(results)
 
@@ -49,16 +53,20 @@ if __name__ == "__main__":
         description="a script to upload images based on a path, can upload individual files or every file in a folder",
     )
     parser.add_argument(
-        "--path",
-        help="path to the folder of images to send, or a individual file, ",
-        default=join(os.path.dirname(os.path.realpath(__file__)), "sample_images"),
+        "--dir",
+        help="path to the directory of images to send",
         type=str,
+        action='append', nargs='+'
     )
     parser.add_argument(
-        "--is_file",
-        help="whether the fed in path is pointing to a file, by default assumes the path points to a folder",
-        default=False,
-        action="store_true",
+        "--file",
+        help="the path to a file to be uploaded",
+        action='append', nargs='+'
     )
     args = parser.parse_args()
-    asyncio.run(main(args.path, args.is_file))
+
+    if not args.dir and not args.file:
+        # default the directory to be sample images
+        args.dir =[[join(os.path.dirname(os.path.realpath(__file__)), "sample_images")]]
+
+    asyncio.run(main(args.dir, args.file))

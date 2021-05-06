@@ -6,11 +6,14 @@ from werkzeug.exceptions import HTTPException
 import os
 from os.path import join
 import json
+import logging
 import argparse
 import sqlite3 as sql
 
 UPLOAD_FOLDER = join(os.path.dirname(os.path.realpath(__file__)), "storage")
 IMAGE_TABLE = "Image"
+
+logging.basicConfig(level=logging.WARNING)
 
 # To prevent user from uploading a malicious script
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
@@ -63,11 +66,7 @@ def error_response(txt, code):
 
 
 def success_response(msg):
-    return json.dumps(
-        {
-            "message": msg,
-        }
-    )
+    return json.dumps({ "message": msg })
 
 
 def allowed_file(filename):
@@ -88,16 +87,20 @@ def post_image():
             f"Please supply a valid file of following types {', '.join(ALLOWED_EXTENSIONS)}",
             400,
         )
+    try: 
+        cur, conn = db()
+        imagefile.save(
+            join(app.config["UPLOAD_FOLDER"], secure_filename(imagefile.filename))
+        )
+        cur.execute(
+            f"INSERT OR REPLACE INTO {IMAGE_TABLE} (path, description) VALUES (?,?)",
+            (imagefile.filename, "default_description"),
+        )
+        conn.commit()
+    except Exception as e:
+        logging.error(f"While updating database for {imagefile.filename}, error: {str(e)}")
+        return error_response(f"Image saved, error while updating database: {str(e)}", 500)
 
-    cur, conn = db()
-    imagefile.save(
-        join(app.config["UPLOAD_FOLDER"], secure_filename(imagefile.filename))
-    )
-    cur.execute(
-        f"INSERT INTO {IMAGE_TABLE} (path, description) VALUES (?,?)",
-        (imagefile.filename, "default_description"),
-    )
-    conn.commit()
     return success_response(f"saved file {imagefile.filename}")
 
 
