@@ -10,16 +10,10 @@ import click
 
 
 
-async def post_file(image_path):
-    files = {
-        "file": open(
-            image_path,
-            "rb",
-        )
-    }
-    r = requests.post(f"{URL}/image", files=files)
-    data = r.json()
-    return data
+async def post_file(session, image_path):
+    with open(image_path, "rb") as f:
+        async with session.post(f"{URL}/image", data={ "file": f }) as r:
+            return await r.json()
 
 
 async def main(directories, files) -> None:
@@ -33,14 +27,14 @@ async def main(directories, files) -> None:
                 for f in listdir(path):
                     file_path = join(path, f)
                     if isfile(file_path):
-                        tasks.append(post_file(file_path))
+                        tasks.append(post_file(session, file_path))
         if files:
             for path in files:
                 # each input arg is a list by default
                 path = path[0]
                 if isfile(path):
                     # sends a single file
-                    tasks.append(post_file(path))
+                    tasks.append(post_file(session, path))
                 else:
                     print(f"Error: {path} or {relative_path} is not a valid file path")
         results = await asyncio.gather(*tasks)

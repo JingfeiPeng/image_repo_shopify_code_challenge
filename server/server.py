@@ -1,14 +1,13 @@
-from flask import Flask
-from flask import request
+from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import HTTPException
 import os
 from os.path import join
-import json
 import logging
 import argparse
 import sqlite3 as sql
+import time
 
 UPLOAD_FOLDER = join(os.path.dirname(os.path.realpath(__file__)), "storage")
 IMAGE_TABLE = "Image"
@@ -54,24 +53,15 @@ def setup(reset=False) -> None:
 
 def error_response(txt, code):
     """Return a JSON error response based on txt and code"""
-    return (
-        json.dumps(
-            {
-                "code": code,
-                "description": txt,
-            }
-        ),
-        code,
-    )
+    return make_response(jsonify({"description": txt }), code)
 
 
 def success_response(msg):
-    return json.dumps({ "message": msg })
+    return make_response(jsonify({ "message": msg }), 200)
 
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 # POST request for uploading a single image
 @app.route("/image", methods=["POST"])
@@ -102,7 +92,6 @@ def post_image():
         return error_response(f"Image saved, error while updating database: {str(e)}", 500)
 
     return success_response(f"saved file {imagefile.filename}")
-
 
 @app.route("/images", methods=["GET"])
 def get_images():
