@@ -95,19 +95,25 @@ def post_image():
             400,
         )
 
-    user = request.form.get('user')
-    permision = request.form.get('permision')
+    user = request.form.get('user')    
+    permission = request.form.get('permission')
     description = request.form.get('description')
-    if permision != "PUBLIC" and permission != "PRIVATE":
+    if permission != "PUBLIC" and permission != "PRIVATE":
         return error_response("permission field must be 'PUBLIC' or 'private'", 400)
     try:
         cur, conn = db()
+        # Creater user if not exists
+        cur.execute(f"SELECT account from {USER_TABLE} WHERE account = ?", (user,))
+        check_user_exists = cur.fetchone()
+        if not check_user_exists:
+            cur.execute(f"INSERT OR REPLACE INTO {USER_TABLE} (account) VALUES ( ? )", (user,))
+
         imagefile.save(
             join(app.config["UPLOAD_FOLDER"], secure_filename(imagefile.filename))
         )
         cur.execute(
             f"INSERT OR REPLACE INTO {IMAGE_TABLE} (path, description, permission, owner) VALUES (?,?,?,?)",
-            (imagefile.filename, description, permision, user),
+            (imagefile.filename, description, permission, user),
         )
         conn.commit()
     except Exception as e:
@@ -123,8 +129,11 @@ def post_image():
 
 @app.route("/images", methods=["GET"])
 def get_images():
+    """"Returns all public images and all images of user regardless of permission"""
     cur, conn = db()
-    cur.execute(f"SELECT * from {IMAGE_TABLE}")
+    user = request.args.get('user', default='')
+    print(user)
+    cur.execute(f"SELECT * from {IMAGE_TABLE} WHERE permission='PUBLIC' OR owner = ?", (user,))
     images = cur.fetchall()
     return json.dumps(images)
 

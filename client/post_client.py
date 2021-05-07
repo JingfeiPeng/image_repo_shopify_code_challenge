@@ -96,7 +96,7 @@ if __name__ == "__main__":
     
     meta_info = {
         "user": args.user,
-        "permision": "PRIVATE" if args.private else "PUBLIC",
+        "permission": "PRIVATE" if args.private else "PUBLIC",
         "description": args.description
     }
     asyncio.run(main(args.dir, args.file, meta_info))
