@@ -105,9 +105,11 @@ def post_image():
         # Creater user if not exists
         cur.execute(f"SELECT account from {USER_TABLE} WHERE account = ?", (user,))
         check_user_exists = cur.fetchone()
+        # TODO: Limit the number of images allowed per user
         if not check_user_exists:
             cur.execute(f"INSERT OR REPLACE INTO {USER_TABLE} (account) VALUES ( ? )", (user,))
 
+        # TODO: possibly have an option to compress image to save size
         imagefile.save(
             join(app.config["UPLOAD_FOLDER"], secure_filename(imagefile.filename))
         )
@@ -141,6 +143,10 @@ def get_images():
         WHERE permission='PUBLIC' 
         OR owner = ?
         AND (instr(path, ? ) > 0 OR instr(description, ? ) > 0)""", (user, keywords, keywords))
+    # TODO: have pagination to return maximally X amount of images at once instead of returning all
+    # images. Also return the current page number and client can pass an argument for images on page Y,
+    # for example, if each page has 20 images, client requesting second page would get from the 20th
+    # to 40th image(exclusive) in the fetched sql results
     images = cur.fetchall()
     return json.dumps(images)
 

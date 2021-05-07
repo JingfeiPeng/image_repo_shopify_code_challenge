@@ -5,7 +5,7 @@ from utils import URL
 
 DEFAULT_USER = "root"
 
-def get_file(user, keywords):
+def get_file(user: str, keywords: str):
     r = requests.get(f"{URL}/images", params={'user':user, 'keywords': keywords})
     data = r.json()
     print(data)
@@ -23,11 +23,11 @@ if __name__ == "__main__":
         default=DEFAULT_USER,
     )
     parser.add_argument(
-        "--keywords",
-        help="search images based on keywords in image file name or description. When not set, returns all possible images",
+        "--keyword",
+        help="search images based on keyword in image file name or description. When not set, returns all possible images",
         type=str,
         default="",
     )
     args = parser.parse_args()
 
-    get_file(args.user, args.keywords)
+    get_file(args.user, args.keyword)

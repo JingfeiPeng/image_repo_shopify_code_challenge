@@ -6,7 +6,6 @@ import argparse
 import requests
 import os
 from utils import URL
-import click
 
 # Since the requests are async, set a bound of 30 on the maxnium number of requests that
 # can be made at once. Feel free to lower the bound and have sleep method on server's api
