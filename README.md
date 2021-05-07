@@ -35,15 +35,14 @@ python server/server.py
     - Manages a directory as file storage for all image files
     - Handles incoming POST API calls to store image
     - Uses SQL to store image meta data and user
-    - Has Cache to avoid fetching from SQL
-    - Have users table to protect access to images
+    - Have User table to protect access to images
     - options:
         --port: Port the server will run on
         --reset: if set, resets the sql database and clears file storage
 
 ### Client:
 
-    Script:
+    Scripts:
 
     post_client.py:
     - Client script to send POST request with body as the image to server
@@ -104,12 +103,15 @@ python client/post_client.py \
 ```
 
 ### Public and private images
+
+Terminal 1
 ```
-# Terminal 1
 # reset server
 python server/server.py --reset
+```
 
-# Terminal 2
+Terminal 2
+```
 # upload private images
 python client/post_client.py --user=jeff --private
 # upload some public images
@@ -119,12 +121,14 @@ python client/get_images_client.py
 ```
 
 ### Search images by keyword
+Terminal 1
 ```
-# Terminal 1
 # reset server
 python server/server.py --reset
+```
 
-# Terminal 2
+Terminal 2
+```
 # upload private images
 python client/post_client.py --user=jeff --dir client/sample_images2/ --private
 # upload some public images
