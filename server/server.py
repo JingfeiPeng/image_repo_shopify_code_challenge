@@ -12,6 +12,7 @@ import time
 
 UPLOAD_FOLDER = join(os.path.dirname(os.path.realpath(__file__)), "storage")
 IMAGE_TABLE = "Image"
+USER_TABLE = "User"
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -38,6 +39,7 @@ def setup(reset=False) -> None:
         for file in os.listdir(UPLOAD_FOLDER):
             os.remove(join(UPLOAD_FOLDER, file))
         cur.execute(f"DROP TABLE IF EXISTS {IMAGE_TABLE}")
+        cur.execute(f"DROP TABLE IF EXISTS {USER_TABLE}")
     else:
         # return if table exists
         cur.execute(
@@ -48,21 +50,35 @@ def setup(reset=False) -> None:
             return
 
     # initialize table
-    cur.execute(f"CREATE TABLE {IMAGE_TABLE} (path TEXT PRIMARY KEY, description TEXT)")
+    # User table
+    cur.execute(f"CREATE TABLE {USER_TABLE} (account TEXT PRIMARY KEY)")
+    cur.execute(f"INSERT INTO {USER_TABLE} (account) VALUES ('root')")
+
+    # Image table
+    cur.execute(
+        f"""CREATE TABLE {IMAGE_TABLE} (
+            path TEXT PRIMARY KEY, 
+            description TEXT, 
+            permission TEXT CHECK( permission IN ('PUBLIC', 'PRIVATE') ) NOT NULL,
+            owner TEXT NOT NULL,
+            FOREIGN KEY(owner) REFERENCES {USER_TABLE}(account)
+        )"""
+    )
     conn.commit()
 
 
 def error_response(txt, code):
     """Return a JSON error response based on txt and code"""
-    return make_response(jsonify({"description": txt }), code)
+    return make_response(jsonify({"description": txt}), code)
 
 
 def success_response(msg):
-    return make_response(jsonify({ "message": msg }), 200)
+    return make_response(jsonify({"message": msg}), 200)
 
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # POST request for uploading a single image
 @app.route("/image", methods=["POST"])
@@ -78,26 +94,37 @@ def post_image():
             f"Please supply a valid file of following types {', '.join(ALLOWED_EXTENSIONS)}",
             400,
         )
-    try: 
+
+    user = request.form.get('user')
+    permision = request.form.get('permision')
+    description = request.form.get('description')
+    if permision != "PUBLIC" and permission != "PRIVATE":
+        return error_response("permission field must be 'PUBLIC' or 'private'", 400)
+    try:
         cur, conn = db()
         imagefile.save(
             join(app.config["UPLOAD_FOLDER"], secure_filename(imagefile.filename))
         )
         cur.execute(
-            f"INSERT OR REPLACE INTO {IMAGE_TABLE} (path, description) VALUES (?,?)",
-            (imagefile.filename, "default_description"),
+            f"INSERT OR REPLACE INTO {IMAGE_TABLE} (path, description, permission, owner) VALUES (?,?,?,?)",
+            (imagefile.filename, description, permision, user),
         )
         conn.commit()
     except Exception as e:
-        logging.error(f"While updating database for {imagefile.filename}, error: {str(e)}")
-        return error_response(f"Image saved, error while updating database: {str(e)}", 500)
+        logging.error(
+            f"While updating database for {imagefile.filename}, error: {str(e)}"
+        )
+        return error_response(
+            f"Image saved, error while updating database: {str(e)}", 500
+        )
 
     return success_response(f"saved file {imagefile.filename}")
+
 
 @app.route("/images", methods=["GET"])
 def get_images():
     cur, conn = db()
-    cur.execute(f"SELECT path, description from {IMAGE_TABLE}")
+    cur.execute(f"SELECT * from {IMAGE_TABLE}")
     images = cur.fetchall()
     return json.dumps(images)
 
