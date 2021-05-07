@@ -2,3 +2,5 @@ aiohttp==3.7.4.post0
 aiofiles==0.6.0
 Flask==1.1.1
 Flask-Cors==3.0.8
+requests==2.22.0
+chardet==3.0.4

@@ -1,13 +1,14 @@
 # Shopify Image repo code challenge
 
 
-
 ## Setup:
 
 Python version: 3.7.6
 
-Install dependencies
 ```
+# setup virtual environment
+python3 -m venv .venv
+source .venv/bin/activate # or on windows: source .venv/Scripts/Activate 
 pip install -r requirements.txt
 ```
 
@@ -16,39 +17,18 @@ Start server:
 python server/server.py
 ```
 
-
-## Usage
-
-Upload files:
-```
-python client/post_client.py \
-    --file client/sample_images/cat_1.jpg \
-    --file client/sample_images2/cat_copied.jpg
-```
-
-Upload folders:
-```
-python client/post_client.py \
-    --dir client/sample_images/ \
-    --dir client/sample_images2/ 
-```
-
-Or combination:
-```
-python client/post_client.py \
-    --file client/sample_images/cat_1.jpg \
-    --dir client/sample_images2/
-```
-
 # Architecture
 
 ### Server:
 
-    - Manages a directory as storage for all image files
+    - Manages a directory as file storage for all image files
     - Handles incoming POST API calls to store image
     - Uses SQL to store image meta data and user
     - Has Cache to avoid fetching from SQL
     - Have users table to protect access to images
+    - options:
+        --port: Port the server will run on
+        --reset: if set, resets the sql database and clears file storage
 
 ### Client:
 
@@ -88,3 +68,55 @@ python client/post_client.py \
         owner: str
         owner references account in User
 
+## Example Usage
+
+Upload files:
+```
+python client/post_client.py \
+    --file client/sample_images/cat_1.jpg \
+    --file client/sample_images2/cat_copied.jpg
+```
+
+Upload folders:
+```
+python client/post_client.py \
+    --dir client/sample_images/ \
+    --dir client/sample_images2/ 
+```
+
+Or combination:
+```
+python client/post_client.py \
+    --file client/sample_images/cat_1.jpg \
+    --dir client/sample_images2/
+```
+
+### Public and private images
+```
+# Terminal 1
+# reset server
+python server/server.py --reset
+
+# Terminal 2
+# upload private images
+python client/post_client.py --user=jeff --private
+# upload some public images
+python client/post_client.py --user=jeff --dir client/sample_images2/ 
+# get images, will only show public images avaliable to root user (images in sample_images2)
+python client/get_images_client.py
+```
+
+### Search images by keyword
+```
+# Terminal 1
+# reset server
+python server/server.py --reset
+
+# Terminal 2
+# upload private images
+python client/post_client.py --user=jeff --dir client/sample_images2/ --private
+# upload some public images
+python client/post_client.py --user=jeff
+# get images, will only show public images avaliable to root user and images containing keyword cat
+python client/get_images_client.py --keyword=cat
+```

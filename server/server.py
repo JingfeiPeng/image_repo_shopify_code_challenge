@@ -140,8 +140,8 @@ def get_images():
     else:
         cur.execute(f"""
         SELECT * from {IMAGE_TABLE} 
-        WHERE permission='PUBLIC' 
-        OR owner = ?
+        WHERE (permission='PUBLIC' 
+        OR owner = ?)
         AND (instr(path, ? ) > 0 OR instr(description, ? ) > 0)""", (user, keywords, keywords))
     # TODO: have pagination to return maximally X amount of images at once instead of returning all
     # images. Also return the current page number and client can pass an argument for images on page Y,
@@ -157,7 +157,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--port",
-        help="Port the server will run on.",
+        help="Port the server will run on",
         default=8081,
         type=int,
     )
