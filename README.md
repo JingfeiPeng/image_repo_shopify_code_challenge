@@ -6,6 +6,7 @@ Implemented features below:
 ADD image(s) to the repository
     - one / bulk / enormous amount of images
     - private or public (permissions)
+    - secure uploading and stored images
 SEARCH function
     - from text
 ```
