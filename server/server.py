@@ -110,6 +110,7 @@ def post_image():
             cur.execute(f"INSERT OR REPLACE INTO {USER_TABLE} (account) VALUES ( ? )", (user,))
 
         # TODO: possibly have an option to compress image to save size
+        # TODO: ensure images sent by 1 user aren't overwritten by another user
         imagefile.save(
             join(app.config["UPLOAD_FOLDER"], secure_filename(imagefile.filename))
         )

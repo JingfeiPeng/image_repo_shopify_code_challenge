@@ -1,5 +1,15 @@
 # Shopify Image repo code challenge
 
+Shopify code challenge for Fall 2021. 
+Implemented features below:
+```
+ADD image(s) to the repository
+    - one / bulk / enormous amount of images
+    - private or public (permissions)
+SEARCH function
+    - from text
+```
+
 
 ## Setup:
 
@@ -17,7 +27,7 @@ Start server:
 python server/server.py
 ```
 
-# Architecture
+## Architecture
 
 ### Server:
 
