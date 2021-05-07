@@ -132,8 +132,15 @@ def get_images():
     """"Returns all public images and all images of user regardless of permission"""
     cur, conn = db()
     user = request.args.get('user', default='')
-    print(user)
-    cur.execute(f"SELECT * from {IMAGE_TABLE} WHERE permission='PUBLIC' OR owner = ?", (user,))
+    keywords = request.args.get('keywords', default='')
+    if keywords == '':
+        cur.execute(f"SELECT * from {IMAGE_TABLE} WHERE permission='PUBLIC' OR owner = ?", (user,))
+    else:
+        cur.execute(f"""
+        SELECT * from {IMAGE_TABLE} 
+        WHERE permission='PUBLIC' 
+        OR owner = ?
+        AND (instr(path, ? ) > 0 OR instr(description, ? ) > 0)""", (user, keywords, keywords))
     images = cur.fetchall()
     return json.dumps(images)
 
