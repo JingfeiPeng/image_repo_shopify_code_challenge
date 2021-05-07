@@ -2,3 +2,7 @@
 server/storage/*
 client/__pycache__
 server/__pycache__
+server/test_storage/
+server/tests/__pycache__
+.pytest_cache
+__pycache__

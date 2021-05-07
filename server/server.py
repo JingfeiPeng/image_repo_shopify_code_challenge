@@ -10,7 +10,7 @@ import argparse
 import sqlite3 as sql
 import uuid
 
-UPLOAD_FOLDER = join(os.path.dirname(os.path.realpath(__file__)), "storage")
+UPLOAD_FOLDER = None
 IMAGE_TABLE = "Image"
 USER_TABLE = "User"
 
@@ -21,7 +21,6 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 # initialize flask app
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 CORS(app)
 
@@ -32,7 +31,13 @@ def db():
     return cur, conn
 
 
-def setup(reset=False) -> None:
+def setup(uploadFolder: str, reset=False) -> None:
+    UPLOAD_FOLDER = uploadFolder
+    app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+    if not os.path.isdir(UPLOAD_FOLDER):
+        # Create storage folder if not exists
+        os.mkdir(UPLOAD_FOLDER)
+
     cur, conn = db()
     if reset:
         # if reset, clear all images in storage and drop table
@@ -171,7 +176,12 @@ if __name__ == "__main__":
         default=False,
         action="store_true",
     )
+    parser.add_argument(
+        "--storage_dir",
+        type=str,
+        help="the storage directory for all image files",
+        default=join(os.path.dirname(os.path.realpath(__file__)), "storage"),
+    )
     args = parser.parse_args()
-
-    setup(args.reset)
+    setup(args.storage_dir, reset=args.reset)
     app.run(port=args.port)

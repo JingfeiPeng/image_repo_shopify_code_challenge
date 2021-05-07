@@ -39,6 +39,7 @@ python server/server.py
     - options:
         --port: Port the server will run on
         --reset: if set, resets the sql database and clears file storage
+        --storage_dir: path to the directory for image storage
 
 ### Client:
 
