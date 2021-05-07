@@ -8,7 +8,7 @@ from os.path import join
 import logging
 import argparse
 import sqlite3 as sql
-import time
+import uuid
 
 UPLOAD_FOLDER = join(os.path.dirname(os.path.realpath(__file__)), "storage")
 IMAGE_TABLE = "Image"
@@ -58,6 +58,7 @@ def setup(reset=False) -> None:
     cur.execute(
         f"""CREATE TABLE {IMAGE_TABLE} (
             path TEXT PRIMARY KEY, 
+            title Text,
             description TEXT, 
             permission TEXT CHECK( permission IN ('PUBLIC', 'PRIVATE') ) NOT NULL,
             owner TEXT NOT NULL,
@@ -107,16 +108,18 @@ def post_image():
         check_user_exists = cur.fetchone()
         # TODO: Limit the number of images allowed per user
         if not check_user_exists:
+            # Create user if user doesn't exist
             cur.execute(f"INSERT OR REPLACE INTO {USER_TABLE} (account) VALUES ( ? )", (user,))
 
         # TODO: possibly have an option to compress image to save size
-        # TODO: ensure images sent by 1 user aren't overwritten by another user
+        _, file_extension = os.path.splitext(imagefile.filename)
+        file_name = f"{uuid.uuid4()}{file_extension}"
         imagefile.save(
-            join(app.config["UPLOAD_FOLDER"], secure_filename(imagefile.filename))
+            join(app.config["UPLOAD_FOLDER"], secure_filename(file_name))
         )
         cur.execute(
-            f"INSERT OR REPLACE INTO {IMAGE_TABLE} (path, description, permission, owner) VALUES (?,?,?,?)",
-            (imagefile.filename, description, permission, user),
+            f"INSERT OR REPLACE INTO {IMAGE_TABLE} (path, title, description, permission, owner) VALUES (?,?,?,?,?)",
+            (file_name, imagefile.filename, description, permission, user),
         )
         conn.commit()
     except Exception as e:
@@ -127,7 +130,7 @@ def post_image():
             f"Image saved, error while updating database: {str(e)}", 500
         )
 
-    return success_response(f"saved file {imagefile.filename}")
+    return success_response(f"saved file {imagefile.filename} as {file_name}")
 
 
 @app.route("/images", methods=["GET"])
@@ -143,7 +146,7 @@ def get_images():
         SELECT * from {IMAGE_TABLE} 
         WHERE (permission='PUBLIC' 
         OR owner = ?)
-        AND (instr(path, ? ) > 0 OR instr(description, ? ) > 0)""", (user, keywords, keywords))
+        AND (instr(title, ? ) > 0 OR instr(description, ? ) > 0)""", (user, keywords, keywords))
     # TODO: have pagination to return maximally X amount of images at once instead of returning all
     # images. Also return the current page number and client can pass an argument for images on page Y,
     # for example, if each page has 20 images, client requesting second page would get from the 20th
