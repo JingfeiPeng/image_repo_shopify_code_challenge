@@ -5,13 +5,13 @@ import asyncio
 import argparse
 import requests
 import os
-from utils import URL
 
 # Since the requests are async, set a bound of 30 on the maxnium number of requests that
 # can be made at once. Feel free to lower the bound and have sleep method on server's api
 # to test effectiveness
 MAX_REQUESTS_AT_ONCE = 30
 DEFAULT_USER = "root"
+URL = "http://127.0.0.1:8081"
 
 
 async def post_file(session, sema, image_path, meta_info):

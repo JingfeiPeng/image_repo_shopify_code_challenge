@@ -1,9 +1,9 @@
 import argparse
 import requests
 import os
-from utils import URL
 
 DEFAULT_USER = "root"
+URL = "http://127.0.0.1:8081"
 
 def get_file(user: str, keywords: str):
     r = requests.get(f"{URL}/images", params={'user':user, 'keywords': keywords})
