@@ -18,10 +18,7 @@ async def post_file(session, sema, image_path, meta_info):
     with open(image_path, "rb") as f:
         async with sema, session.post(
             f"{URL}/image",
-            data={
-                "file": f,
-                **meta_info
-            },
+            data={"file": f, **meta_info},
         ) as r:
             return await r.json()
 
@@ -77,7 +74,7 @@ if __name__ == "__main__":
         "--description",
         help="the description for images uploaded",
         type=str,
-        default='',
+        default="",
     )
     parser.add_argument(
         "--user",
@@ -92,10 +89,10 @@ if __name__ == "__main__":
         args.dir = [
             [join(os.path.dirname(os.path.realpath(__file__)), "sample_images")]
         ]
-    
+
     meta_info = {
         "user": args.user,
         "permission": "PRIVATE" if args.private else "PUBLIC",
-        "description": args.description
+        "description": args.description,
     }
     asyncio.run(main(args.dir, args.file, meta_info))

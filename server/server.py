@@ -103,9 +103,9 @@ def post_image():
             400,
         )
 
-    user = request.form.get('user')    
-    permission = request.form.get('permission')
-    description = request.form.get('description')
+    user = request.form.get("user")
+    permission = request.form.get("permission")
+    description = request.form.get("description")
     if permission != "PUBLIC" and permission != "PRIVATE":
         return error_response("permission field must be 'PUBLIC' or 'private'", 400)
     try:
@@ -116,14 +116,14 @@ def post_image():
         # TODO: Limit the number of images allowed per user
         if not check_user_exists:
             # Create user if user doesn't exist
-            cur.execute(f"INSERT OR REPLACE INTO {USER_TABLE} (account) VALUES ( ? )", (user,))
+            cur.execute(
+                f"INSERT OR REPLACE INTO {USER_TABLE} (account) VALUES ( ? )", (user,)
+            )
 
         # TODO: possibly have an option to compress image to save size
         _, file_extension = os.path.splitext(imagefile.filename)
         file_name = f"{uuid.uuid4()}{file_extension}"
-        imagefile.save(
-            join(app.config["UPLOAD_FOLDER"], secure_filename(file_name))
-        )
+        imagefile.save(join(app.config["UPLOAD_FOLDER"], secure_filename(file_name)))
         cur.execute(
             f"INSERT OR REPLACE INTO {IMAGE_TABLE} (path, title, description, permission, owner) VALUES (?,?,?,?,?)",
             (file_name, imagefile.filename, description, permission, user),
@@ -144,16 +144,22 @@ def post_image():
 def get_images():
     """"Returns all public images and all images of user regardless of permission"""
     cur, conn = db()
-    user = request.args.get('user', default='')
-    keywords = request.args.get('keywords', default='')
-    if keywords == '':
-        cur.execute(f"SELECT * from {IMAGE_TABLE} WHERE permission='PUBLIC' OR owner = ?", (user,))
+    user = request.args.get("user", default="")
+    keywords = request.args.get("keywords", default="")
+    if keywords == "":
+        cur.execute(
+            f"SELECT * from {IMAGE_TABLE} WHERE permission='PUBLIC' OR owner = ?",
+            (user,),
+        )
     else:
-        cur.execute(f"""
+        cur.execute(
+            f"""
         SELECT * from {IMAGE_TABLE} 
         WHERE (permission='PUBLIC' 
         OR owner = ?)
-        AND (instr(title, ? ) > 0 OR instr(description, ? ) > 0)""", (user, keywords, keywords))
+        AND (instr(title, ? ) > 0 OR instr(description, ? ) > 0)""",
+            (user, keywords, keywords),
+        )
     # TODO: have pagination to return maximally X amount of images at once instead of returning all
     # images. Also return the current page number and client can pass an argument for images on page Y,
     # for example, if each page has 20 images, client requesting second page would get from the 20th
