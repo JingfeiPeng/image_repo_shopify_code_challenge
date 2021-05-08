@@ -55,7 +55,7 @@ async def main(directories, files, meta_info) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog="image repo client for uploading files",
-        description="a script to upload images based on a path, can upload individual files or every file in a folder",
+        description="a script to upload images based on a path, can upload individual files or entire folders",
     )
     parser.add_argument(
         "--dir",

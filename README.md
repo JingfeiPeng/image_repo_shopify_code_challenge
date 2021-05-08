@@ -1,15 +1,21 @@
 # Shopify Image repo code challenge
 
-Shopify code challenge for Fall 2021. 
+## Shopify Developer Intern Challenge Question for Fall 2021. 
+### Made by Jeffer (Jingfei) Peng
 Implemented features below:
-```
+
 ADD image(s) to the repository
-    - one / bulk / enormous amount of images
-    - private or public (permissions)
-    - secure uploading and stored images
+
+- one / bulk / enormous amount of images
+
+- private or public (permissions)
+
+- secure uploading and stored images
+
 SEARCH function
-    - from text
-```
+
+- from text
+
 
 
 ## Setup:
@@ -27,6 +33,11 @@ Start server:
 ```
 python server/server.py
 ```
+Use `client/post_client.py` for uploading images and `client/get_images_client.py` for fetching images. 
+See `Architecture` below for avaliable options or `Sample Usage` for examples on how to use
+
+### Tests:
+To run tests: `./run_tests.sh`
 
 ## Architecture
 
@@ -40,10 +51,9 @@ python server/server.py
         --port: Port the server will run on
         --reset: if set, resets the sql database and clears file storage
         --storage_dir: path to the directory for image storage
+        --database: database file
 
-### Client:
-
-    Scripts:
+### Client scripts:
 
     post_client.py:
     - Client script to send POST request with body as the image to server
@@ -80,7 +90,7 @@ python server/server.py
         owner: str
         owner references account in User
 
-## Example Usage
+## Sample Usage
 
 Upload files:
 ```
