@@ -26,14 +26,16 @@ CORS(app)
 
 
 def db():
-    conn = sql.connect(join(os.path.dirname(os.path.realpath(__file__)), "database.db"))
+    assert app.config["DATABASE"]
+    conn = sql.connect(app.config["DATABASE"])
     cur = conn.cursor()
     return cur, conn
 
 
-def setup(uploadFolder: str, reset=False) -> None:
+def setup(uploadFolder: str, database: str, reset=False) -> None:
     UPLOAD_FOLDER = uploadFolder
     app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+    app.config["DATABASE"] = database
     if not os.path.isdir(UPLOAD_FOLDER):
         # Create storage folder if not exists
         os.mkdir(UPLOAD_FOLDER)
@@ -182,6 +184,12 @@ if __name__ == "__main__":
         help="the storage directory for all image files",
         default=join(os.path.dirname(os.path.realpath(__file__)), "storage"),
     )
+    parser.add_argument(
+        "--database",
+        type=str,
+        help="the database file",
+        default=join(os.path.dirname(os.path.realpath(__file__)), "database.db"),
+    )
     args = parser.parse_args()
-    setup(args.storage_dir, reset=args.reset)
+    setup(args.storage_dir, args.database, reset=args.reset)
     app.run(port=args.port)
