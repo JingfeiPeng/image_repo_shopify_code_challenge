@@ -1,5 +1,4 @@
-# Shopify Image repo code challenge
-
+# Image repo
 ## Shopify Developer Intern Challenge Question for Fall 2021. 
 ### Made by Jeffer (Jingfei) Peng
 Implemented features below:
@@ -34,7 +33,7 @@ Start server:
 python server/server.py
 ```
 Use `client/post_client.py` for uploading images and `client/get_images_client.py` for fetching images. 
-See `Architecture` below for avaliable options or `Sample Usage` for examples on how to use
+See `Architecture` below for avaliable options and `Sample Usage` for examples on how to use
 
 ### Tests:
 To run tests: `./run_tests.sh`
