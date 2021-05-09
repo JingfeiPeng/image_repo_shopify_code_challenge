@@ -1,4 +1,5 @@
 .venv
+.vscode
 server/storage/*
 client/__pycache__
 server/__pycache__
@@ -7,3 +8,4 @@ server/tests/__pycache__
 .pytest_cache
 __pycache__
 tests/__pycache__
+Shopify_code_challenege_image_repo.egg-info

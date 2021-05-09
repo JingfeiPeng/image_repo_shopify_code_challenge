@@ -67,7 +67,7 @@ def test_public_post(client, image):
     )
     assert rv.status_code == 200
     response = json.loads(rv.data)
-    assert "saved file cat_1.jpg" in response["message"]
+    assert "saved file" in response["message"] and "cat_1.jpg" in response["message"]
 
     """get image"""
     rv = client.get("/images")
@@ -75,7 +75,7 @@ def test_public_post(client, image):
     assert rv.status_code == 200
     assert len(list_of_images) == 1
     uploaded_image = list_of_images[0]
-    assert uploaded_image[1] == TESTING_IMAGE
+    assert TESTING_IMAGE in uploaded_image[1]
     assert uploaded_image[2] == "Look at this cat"
     assert uploaded_image[3] == "PUBLIC"
     assert uploaded_image[4] == "test_user"
@@ -99,7 +99,7 @@ def test_private_post(client, image):
     )
     assert rv.status_code == 200
     response = json.loads(rv.data)
-    assert "saved file cat_1.jpg" in response["message"]
+    assert "saved file" in response["message"] and "cat_1.jpg" in response["message"]
 
     """should get no images since another_user has no access"""
     rv = client.get(

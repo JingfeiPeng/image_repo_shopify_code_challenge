@@ -23,18 +23,20 @@ Python version: 3.7.6
 
 ```
 # setup virtual environment
-python3 -m venv .venv
+python3.7 -m venv .venv
 source .venv/bin/activate # or on windows: source .venv/Scripts/Activate 
-pip install -r requirements.txt
+# Install package and dependencies
+pip install .
 ```
 
 Start server:
 ```
-python server/server.py
+python server/server.py --reset
 ```
 Use `client/post_client.py` for uploading images and `client/get_images_client.py` for fetching images. 
 See `Architecture` below for avaliable options and `Sample Usage` for examples on how to use
 
+Tested on Ubuntu and Windows
 ### Tests:
 To run tests: `./run_tests.sh`
 
