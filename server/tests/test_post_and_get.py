@@ -1,6 +1,6 @@
 import os
 import tempfile
-from os.path import join
+from os.path import join, isfile
 import json
 
 import pytest
@@ -8,6 +8,7 @@ import pytest
 from server import server
 
 TESTING_IMAGE = "cat_1.jpg"
+TESTING_STORAGE_PATH = "./server/test_storage/"
 
 
 @pytest.fixture
@@ -17,7 +18,7 @@ def client():
     with server.app.test_client() as client:
         with server.app.app_context():
             server.setup(
-                "./server/test_storage/", server.app.config["DATABASE"], reset=True
+                TESTING_STORAGE_PATH, server.app.config["DATABASE"], reset=True
             )
         yield client
 
@@ -76,6 +77,8 @@ def test_public_post(client, image):
     assert len(list_of_images) == 1
     uploaded_image = list_of_images[0]
     assert TESTING_IMAGE in uploaded_image[1]
+    # test image is properly saved
+    assert isfile(join(TESTING_STORAGE_PATH, uploaded_image[0]))
     assert uploaded_image[2] == "Look at this cat"
     assert uploaded_image[3] == "PUBLIC"
     assert uploaded_image[4] == "test_user"
