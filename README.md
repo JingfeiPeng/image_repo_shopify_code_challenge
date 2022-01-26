@@ -1,6 +1,6 @@
 # Image repo
 ## Shopify Developer Intern Challenge Question for Fall 2021. 
-### Made by Jeffer (Jingfei) Peng
+### Made by Jeffer (Jingfei) Peng, qualified for interview
 Implemented features below:
 
 ADD image(s) to the repository
